@@ -46,8 +46,8 @@ umodel <- "Y ~ A"
 amodel <- "Y ~ A + W"
 
 # calculate the unadjusted and adjusted ORs in the super population
-unadjusted <- glm(formula = umodel,family = binomial(),data=dat)
-adjusted   <- glm(formula = amodel,family = binomial(),data=dat)
+unadjusted <- glm(formula = umodel,family = binomial(),data = dat)
+adjusted   <- glm(formula = amodel,family = binomial(),data = dat)
 
 uOR <- exp(coefficients(unadjusted))[["A"]]
 tOR <- exp(coefficients(adjusted))[["A"]]
@@ -56,7 +56,7 @@ tOR <- exp(coefficients(adjusted))[["A"]]
 ## Sampling from the super population
 
 ``` r
-obsdat <- dat[sample(x = superN, size = n, replace=F), ]
+obsdat <- dat[sample(x = superN, size = n, replace = F), ]
 ```
 
 ## Matched design
@@ -88,7 +88,7 @@ In this simulation, we use frequency matching to find matched controls.
   match <- rbind(case,cs)
   
   unadjusted_m <- glm(formula = umodel,family = binomial(),data = match)
-  adjusted_m  <- glm(formula = amodel,family = binomial(),data = match)
+  adjusted_m   <- glm(formula = amodel,family = binomial(),data = match)
   
   uOR <- exp(coefficients(unadjusted_m))[["A"]]
   aOR <- exp(coefficients(adjusted_m))[["A"]]
@@ -138,29 +138,10 @@ For an unmatched design, we use random sampling to select controls.
   aOR <- exp(coefficients(adjusted_u))[["A"]]
   
   confuOR_lb <- exp(confint(unadjusted_u))[["A","2.5 %"]]
-```
-
-    ## Waiting for profiling to be done...
-
-``` r
   confuOR_ub <- exp(confint(unadjusted_u))[["A","97.5 %"]]  
-```
-
-    ## Waiting for profiling to be done...
-
-``` r
   confaOR_lb <- exp(confint(adjusted_u))[["A","2.5 %"]]
-```
-
-    ## Waiting for profiling to be done...
-
-``` r
   confaOR_ub <- exp(confint(adjusted_u))[["A","97.5 %"]] 
-```
-
-    ## Waiting for profiling to be done...
-
-``` r
+  
   aOR_bias <- aOR - tOR
   percent_bias <- pbias(aOR,tOR)
   mean_squared_error <- mse(aOR,tOR)
@@ -185,20 +166,32 @@ For an unmatched design, we use random sampling to select controls.
 ## Combine results from matched and unmatched designs
 
 ``` r
+  "True odds ratio"
+```
+
+    ## [1] "True odds ratio"
+
+``` r
+  tOR
+```
+
+    ## [1] 1.672961
+
+``` r
   left_join(results_matched, results_unmatched, by = "Measures") %>%
-  knitr::kable(digits = 1)
+  knitr::kable(digits = 2)
 ```
 
 | Measures | Matched design | Unmatched design |
 |:---------|---------------:|-----------------:|
-| uOR      |            1.7 |              1.6 |
-| aOR      |            1.7 |              1.5 |
-| uOR_lb   |            1.2 |              1.1 |
-| uOR_ub   |            2.6 |              2.4 |
-| aOR_lb   |            1.2 |              1.0 |
-| aOR_ub   |            2.6 |              2.3 |
-| range    |            1.4 |              1.3 |
-| bias     |            0.1 |             -0.1 |
-| pbias    |            4.6 |             -5.5 |
-| mse      |            0.0 |              0.0 |
-| coverage |            1.0 |              1.0 |
+| uOR      |           1.63 |             2.21 |
+| aOR      |           1.63 |             2.12 |
+| uOR_lb   |           1.14 |             1.51 |
+| uOR_ub   |           2.34 |             3.28 |
+| aOR_lb   |           1.14 |             1.44 |
+| aOR_ub   |           2.34 |             3.14 |
+| range    |           1.20 |             1.70 |
+| bias     |          -0.04 |             0.44 |
+| pbias    |          -2.50 |            26.50 |
+| mse      |           0.00 |             0.20 |
+| coverage |           1.00 |             1.00 |
